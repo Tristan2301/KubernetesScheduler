@@ -88,11 +88,12 @@ public abstract class Scheduler implements Informable {
         if( traceEnabled ) {
             unscheduledTasks.forEach( x -> x.getTraceRecord().tryToSchedule( startSchedule ) );
         }
-        final ScheduleObject scheduleObject = getTaskNodeAlignment(unscheduledTasks, getAvailableByNode());
-        final List<NodeTaskAlignment> taskNodeAlignment = scheduleObject.getTaskAlignments();
+        final ScheduleObject scheduleObject = getTaskNodeAlignment(unscheduledTasks, getAvailableByNode());   //// ist das NodeTaskAlignment random hier ?
+        final List<NodeTaskAlignment> taskNodeAlignment = scheduleObject.getTaskAlignments(); //// links dasselbe wie rechts
+    
 
         //check if still possible...
-        if ( scheduleObject.isCheckStillPossible() ) {
+        if ( scheduleObject.isCheckStillPossible() ) { //// wann wird das mal true
             boolean possible = validSchedulePlan ( taskNodeAlignment );
             if (!possible) {
                 log.info("The whole scheduling plan is not possible anymore.");
@@ -104,14 +105,14 @@ public abstract class Scheduler implements Informable {
         int scheduled = 0;
         for (NodeTaskAlignment nodeTaskAlignment : taskNodeAlignment) {
             try {
-                if (isClose()) {
+                if (isClose()) { //// was heißt close
                     return -1;
                 }
-                if ( !assignTaskToNode( nodeTaskAlignment ) ){
-                    if ( scheduleObject.isStopSubmitIfOneFails() ) {
+                if ( !assignTaskToNode( nodeTaskAlignment ) ){ //// wenn assigned failed 
+                    if ( scheduleObject.isStopSubmitIfOneFails() ) { //// stop scheduling wenn ein assignment fails 
                         return taskNodeAlignment.size() - scheduled;
                     }
-                    failure++;
+                    failure++; //// sonst failures zählen
                     continue;
                 }
             } catch ( Exception e ){
@@ -127,7 +128,7 @@ public abstract class Scheduler implements Informable {
             scheduled++;
         }
         return unscheduledTasks.size() - taskNodeAlignment.size() + failure;
-    }
+    } //// was passiert, wenn ein assignTaskToNode fails, welcher node kriegt die task
 
     /**
      * Call this method in case of any scheduling problems
@@ -359,7 +360,7 @@ public abstract class Scheduler implements Informable {
             log.error( "Cannot read " + nodeFile, e);
         }
 
-        alignment.task.setNode( alignment.node );
+        alignment.task.setNode( alignment.node ); //// was passiert hier? 
 
         final PodWithAge pod = alignment.task.getPod();
 
@@ -454,7 +455,7 @@ public abstract class Scheduler implements Informable {
         return t;
     }
 
-    Map<NodeWithAlloc, Requirements> getAvailableByNode(){
+    Map<NodeWithAlloc, Requirements> getAvailableByNode(){  //// returned alle available nodes 
         Map<NodeWithAlloc, Requirements> availableByNode = new HashMap<>();
         List<String> logInfo = new LinkedList<>();
         logInfo.add("------------------------------------");
