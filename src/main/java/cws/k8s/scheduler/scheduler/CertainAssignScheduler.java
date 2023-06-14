@@ -16,35 +16,16 @@ import java.util.*;
 @Slf4j
 public class CertainAssignScheduler extends Scheduler {
 
-    private final Prioritize prioritize;
-    private final NodeAssign nodeAssigner;
     private final ReadCsv readCsv;
 
     public CertainAssignScheduler( String execution,
                                       KubernetesClient client,
                                       String namespace,
-                                      SchedulerConfig config,
-                                      Prioritize prioritize,
-                                      NodeAssign nodeAssigner,
-                                      ReadCsv readCsv,
-                                      String pathToCsv) {
+                                      SchedulerConfig config
+                                      ) {
         super(execution, client, namespace, config);
-        this.prioritize = prioritize;
-        this.nodeAssigner = nodeAssigner;
-        this.readCsv = new ReadCsv(pathToCsv);
-        nodeAssigner.registerScheduler( this );
-        if ( nodeAssigner instanceof Informable ){
-            client.addInformable( (Informable) nodeAssigner );
-        }
+        this.readCsv = new ReadCsv(config.additional.get("pathToCsv").asText());
     }
-
-    @Override
-    public void close() {
-        super.close();
-        if ( nodeAssigner instanceof Informable ){
-            client.removeInformable( (Informable) nodeAssigner );
-        }
-    } /// was macht das
 
     @Override
     public ScheduleObject getTaskNodeAlignment(
@@ -53,9 +34,16 @@ public class CertainAssignScheduler extends Scheduler {
     ){
         final ArrayList<Map.Entry<NodeWithAlloc, Requirements>> entries = new ArrayList<>( availableByNode.entrySet() );
         List<NodeTaskAlignment> alignment = new LinkedList<>();
-
         readCsv.readAndProcessCsv(null);
         final Map<String, Pair<String, Integer>> labeltonoderesouce = readCsv.getLabelNameToNodeResource();
+
+        long start = System.currentTimeMillis();
+        if ( traceEnabled ) {
+            int index = 1;
+            for ( Task unscheduledTask : unscheduledTasks ) {
+                unscheduledTask.getTraceRecord().setSchedulerPlaceInQueue( index++ );
+            }
+        }
 
         for ( Task unscheduledTask : unscheduledTasks ) {
             final String taskLabel = unscheduledTask.getProcess().getLabel();
@@ -74,20 +62,10 @@ public class CertainAssignScheduler extends Scheduler {
             }
         }
 
-
-        // long start = System.currentTimeMillis();
-        // if ( traceEnabled ) {
-        //     int index = 1;
-        //     for ( Task unscheduledTask : unscheduledTasks ) {
-        //         unscheduledTask.getTraceRecord().setSchedulerPlaceInQueue( index++ );
-        //     }
-        // }
-        // prioritize.sortTasks( unscheduledTasks );
-        // List<NodeTaskAlignment> alignment = nodeAssigner.getTaskNodeAlignment(unscheduledTasks, availableByNode);
-        // long timeDelta = System.currentTimeMillis() - start;
-        // for ( Task unscheduledTask : unscheduledTasks ) {
-        //     unscheduledTask.getTraceRecord().setSchedulerTimeToSchedule( (int) timeDelta );
-        // }
+        long timeDelta = System.currentTimeMillis() - start;
+        for ( Task unscheduledTask : unscheduledTasks ) {
+            unscheduledTask.getTraceRecord().setSchedulerTimeToSchedule( (int) timeDelta );
+        }
 
         final ScheduleObject scheduleObject = new ScheduleObject(alignment);
         scheduleObject.setCheckStillPossible( false );

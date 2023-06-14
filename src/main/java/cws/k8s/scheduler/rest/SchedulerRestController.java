@@ -3,9 +3,11 @@ package cws.k8s.scheduler.rest;
 import cws.k8s.scheduler.dag.DAG;
 import cws.k8s.scheduler.dag.InputEdge;
 import cws.k8s.scheduler.client.KubernetesClient;
+import cws.k8s.scheduler.csv_reader.ReadCsv;
 import cws.k8s.scheduler.dag.Vertex;
 import cws.k8s.scheduler.model.SchedulerConfig;
 import cws.k8s.scheduler.model.TaskConfig;
+import cws.k8s.scheduler.scheduler.CertainAssignScheduler;
 import cws.k8s.scheduler.scheduler.PrioritizeAssignScheduler;
 import cws.k8s.scheduler.scheduler.Scheduler;
 import cws.k8s.scheduler.scheduler.prioritize.*;
@@ -28,9 +30,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.validation.constraints.Null;
 
 @RestController
 @Slf4j
@@ -105,6 +111,9 @@ public class SchedulerRestController {
         }
 
         switch ( strategy.toLowerCase() ){
+            case "NodeLabelScheduler":
+                scheduler = new CertainAssignScheduler(execution, client, namespace, config);
+                break;
             default: {
                 final String[] split = strategy.split( "-" );
                 Prioritize prioritize;
