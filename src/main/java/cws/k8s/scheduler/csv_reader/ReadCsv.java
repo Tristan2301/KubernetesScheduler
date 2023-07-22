@@ -33,12 +33,12 @@ public class ReadCsv {
                     isHeader = false;
                     continue; // Skip the header
                 }
-
                 String[] columns = line.split(";");
                 if (columns.length == 3) {
                     String nodeName = columns[0];
                     String labelName = columns[1];
                     int resource = Integer.parseInt(columns[2]);
+
 
                     Pair<String, Integer> nodeResourcePair = Pair.of(nodeName, resource);
                     labelNameToNodeResource.put(labelName, nodeResourcePair);
@@ -46,6 +46,10 @@ public class ReadCsv {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        for( Map.Entry<String, Pair<String, Integer>> e : labelNameToNodeResource.entrySet()) {
+            System.out.println(e.getKey() + "/" + e.getValue().getLeft() + "/" + e.getValue().getRight());
         }
     }
 }

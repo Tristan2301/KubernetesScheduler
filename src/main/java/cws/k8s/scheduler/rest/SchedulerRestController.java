@@ -111,7 +111,7 @@ public class SchedulerRestController {
         }
 
         switch ( strategy.toLowerCase() ){
-            case "NodeLabelScheduler":
+            case "nodelabelscheduler":
                 scheduler = new CertainAssignScheduler(execution, client, namespace, config);
                 break;
             default: {

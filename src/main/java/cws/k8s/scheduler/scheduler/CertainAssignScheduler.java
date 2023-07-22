@@ -2,10 +2,10 @@ package cws.k8s.scheduler.scheduler;
 
 import cws.k8s.scheduler.csv_reader.ReadCsv;
 import cws.k8s.scheduler.model.*;
-import cws.k8s.scheduler.scheduler.prioritize.Prioritize;
-import cws.k8s.scheduler.client.Informable;
+// import cws.k8s.scheduler.scheduler.prioritize.Prioritize;
+// import cws.k8s.scheduler.client.Informable;
 import cws.k8s.scheduler.client.KubernetesClient;
-import cws.k8s.scheduler.scheduler.nodeassign.NodeAssign;
+// import cws.k8s.scheduler.scheduler.nodeassign.NodeAssign;
 import cws.k8s.scheduler.util.NodeTaskAlignment;
 import lombok.extern.slf4j.Slf4j;
 
