@@ -97,6 +97,8 @@ public class SchedulerRestController {
         final String strategy = config.strategy;
         log.info( "Register execution: {} strategy: {} cf: {} config: {}", execution, strategy, config.costFunction, config );
 
+        System.out.println(config.additional.get("myconfig").asText());
+
         Scheduler scheduler;
 
 
